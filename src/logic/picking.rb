@@ -27,15 +27,16 @@ module PickingLogic
       a[row['captain']][row['player']] = p - global_p
     end
 
-    u, v = eigv(a.t * a)
-    min_score = u.min
-    u.map { |score| score + min_score }
-    total = u.inject(:+)
+    ys, _ = eigv(a * a.t)
+    y = ys[0]
+    min_score = y.min
+    y.map { |score| score + min_score }
+    total = y.inject(:+)
 
     const["teams"]["count"].times do |i|
       random_float = rand() * total
       partial_sum = 0.0
-      for score, id in u.zip(all_players)
+      for score, id in y.zip(all_players)
         partial_sum += score
         captain = id if partial_sum > random_float
       end
