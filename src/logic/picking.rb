@@ -9,9 +9,37 @@ module PickingLogic
     possible_captains = get_classes["captain"]
     @signups_all = @signups.reject { |k, v| false } # Ghetto way of copying a hash
 
+    db = SQLite3::Database.new(Constants.const["database"])
+    db.results_as_hash = true
+    db.type_translation = true
+
+    global_p = db.execute('select cast(sum(picked) as float) / count(*) global_p')
+    min_sample = Constants.const['reward']['min']
+
+    db.execute('select captain, player, sum(picked) picks, count(*) decisions group by captain, player') do |row|
+      picks = row['picks']
+      decisions = row['decisions']
+      if decisions < min_sample
+        picks += global_p * (min_sample - decisions)
+        decisions = Constants.const['reward']['min']
+      end
+      p = picks / decisions
+      a[row['captain']][row['player']] = p - global_p
+    end
+
+    u, v = eigv(a.t * a)
+    min_score = u.min
+    u.map { |score| score + min_score }
+    total = u.inject(:+)
+
     const["teams"]["count"].times do |i|
-      captain = possible_captains.delete_at rand(possible_captains.length)
-      
+      random_float = rand() * total
+      partial_sum = 0.0
+      for score, id in u.zip(all_players)
+        partial_sum += score
+        captain = id if partial_sum > random_float
+      end
+
       team = Team.new
       team.set_captain captain
       team.set_details const["teams"]["details"][i]
