@@ -38,7 +38,9 @@ module PickingLogic
       partial_sum = 0.0
       for score, id in y.zip(all_players)
         partial_sum += score
-        captain = id if partial_sum > random_float
+        if partial_sum > random_float
+          captain = id
+          break
       end
 
       team = Team.new
