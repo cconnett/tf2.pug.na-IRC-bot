@@ -10,7 +10,7 @@ join players pl on s.player_id = pl.id
 join matches_teams mt on pl.match_id = mt.match_id
 join players captains on captains.team_id = mt.team_id
 join picks captainships on captains.id = captainships.player_id
-left outer join picks b on b.player_id = s.player_id and b.tfclass_id = s.tfclass_id
+left outer join picks b on b.player_id = s.player_id and +b.tfclass_id = s.tfclass_id
 where s.tfclass_id != 10 and captainships.tfclass_id = 10
 and user != captain
 group by user, class, captain
