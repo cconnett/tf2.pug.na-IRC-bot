@@ -5,7 +5,7 @@ require_relative '../stv'
 
 module ServerLogic
   def start_server
-    @server.connect
+    connect_server
     
     while @server.in_use?
       message "Server #{ @server.to_s } is in use. Trying the next server in #{ const["delays"]["server"] } seconds."
@@ -14,7 +14,7 @@ module ServerLogic
       sleep const["delays"]["server"]
       
       next_server
-      @server.connect
+      connect_server
     end
     
     @server.clvl @map["file"]
@@ -35,9 +35,14 @@ module ServerLogic
     threads = []
     const["servers"].each do |server_d|
       threads << Thread.new(Server.new(server_d), server_d) do |server, server_d|
-        server.connect
-        yield server, server_d
-        server.disconnect
+        begin
+          server.connect
+          yield server, server_d
+          server.disconnect
+        rescue => e  
+          puts e.message  
+          puts e.backtrace.inspect  
+        end
       end
     end
     threads.each { |thread| thread.join }
@@ -56,7 +61,7 @@ module ServerLogic
         count = stv.demos.size
         if count > 0
           message "Uploading #{ count } demos from #{ server }."
-          stv.update
+          stv.update server
         else
           message "No new demos on #{ server }."
         end
@@ -74,7 +79,8 @@ module ServerLogic
   
   def list_status
     each_server do |server, server_d|
-      message "#{ server.players - 1 } players on #{ server }" # -1 to factor in STV
+      players = server.players - 1 # -1 to factor in STV
+      message "#{ players } players on #{ server }#{ ", #{ server.timeleft } left" if players > const["settings"]["used"] }" 
     end
   end
 
@@ -93,12 +99,22 @@ module ServerLogic
   end
   
   def list_last
-    message "The last match was started #{ ChronicDuration.output((Time.now - @last).to_i, :format => :long) } ago"
+    message "The last match was started #{ ChronicDuration.output((Time.now - @last).to_i) } ago"
   end
   
   def list_rotation
     output = const["rotation"]["maps"].collect { |map| "#{ map["name"] }(#{ map["weight"] })" }
     message "Map(weight) rotation: #{ output * ", " }"
+  end
+  
+  def connect_server
+    while true
+      begin 
+        return @server.connect
+      rescue
+        next_server
+      end
+    end
   end
   
   def next_server

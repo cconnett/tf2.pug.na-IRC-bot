@@ -19,12 +19,14 @@ module Variables
     @toremove = []
 
     @teams = []
+    @pick_order = []
     @lookup = {}
     
     @last = Match.last.time if Match.last
     @state = const["states"]["waiting"]
     @pick = 0
-    
+
+    @show_list = false
     @updating = false
     @debug = false
   end
@@ -36,12 +38,13 @@ module Variables
     @last = Time.now
     state "waiting"
     @pick = 0
+    @pick_order = []
     
     @auth.reject! { |k, v| !@signups.key? k }
     @spoken.reject! { |k, v| !@signups.key? k }
     
-    @toadd.each { |nick, classes| add_player nick, classes }
-    @toremove.each { |nick| remove_player nick }
+    @toadd.each { |nick, classes| add_player User(nick), classes }
+    @toremove.each { |nick| remove_player User(nick) }
     
     @toadd.clear
     @toremove.clear

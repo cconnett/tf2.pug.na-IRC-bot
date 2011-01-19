@@ -1,4 +1,5 @@
 require 'cinch'
+
 require_relative 'constants'
 require_relative 'botManager'
 require_relative 'pug'
@@ -21,9 +22,8 @@ class BotMaster < Cinch::Bot
       
       c.channels = [ Constants.const["irc"]["channel"] ]
       c.plugins.plugins = [ Pug ]
-      
-      c.encoding = :irc
-      c.verbose = true
+
+      c.verbose = false
     end
     
     on :connect do 

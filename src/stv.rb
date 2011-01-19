@@ -1,5 +1,6 @@
 require 'net/ftp'
 require 'fileutils'
+require 'zip/zipfilesystem'
 
 require_relative 'constants'
 
@@ -11,7 +12,7 @@ class STV
   end
 
   def open details
-    Net::FTP.open(details["ip"], details["password"], details["user"]).tap do |conn|
+    Net::FTP.open(details["ip"], details["user"], details["password"]).tap do |conn|
       conn.passive = true
       conn.chdir details["dir"] if details["dir"]
     end
@@ -25,14 +26,28 @@ class STV
     @down.nlst.reject { |filename| !(filename =~ /.+\.dem/) }
   end
   
-  def update
+  def update server
     demos.each do |filename|
-      file = const["stv"]["path"] + filename
-    
-      @down.getbinaryfile filename, file
+      file = "#{ server.name }-#{ filename }"
+      filezip = "#{ file }.zip"
+      filetemp = "#{ file }.tmp"
+
+      storage = "#{ const["stv"]["storage"] }"
+
+      # Download file and zip it
+      @down.getbinaryfile filename, storage + filename
+      Zip::ZipFile.open(storage + filezip, Zip::ZipFile::CREATE) { |zipfile| zipfile.add(filename, storage + filename) }
+
+      # Upload the file with a temp file extension and rename it after uploading
+      @up.putbinaryfile storage + filezip, filetemp
+      @up.rename filetemp, filezip
+      
+      # Delete local files
+      FileUtils.rm storage + filename
+      FileUtils.rm storage + filezip if const["stv"]["delete"]["local"]
+
+      # Delete remote files
       @down.delete filename if const["stv"]["delete"]["remote"]
-      @up.putbinaryfile file, filename
-      FileUtils.rm file if const["stv"]["delete"]["local"]
     end
   end
   

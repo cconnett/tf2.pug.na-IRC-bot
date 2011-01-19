@@ -12,18 +12,18 @@ irc:
   nick: TF2CompanionTest
   channel: '#tf2.pug.na.beta'
   
-  auth:
+  auth: PugNaBot
   auth_password: secret
   auth_serv: AuthServ@Services.GameSurge.net
   
 messengers:
-  count: 0
-  nick: TF2MessengerBo
+  count: 1
+  nick: TF2MessengerTes
   mps: 0.5
 
 delays: 
   afk: 45
-  picking: 45
+  picking: 60
   server: 30
   manager: 0.05
   
@@ -52,7 +52,7 @@ servers:
     password: tf2pug
     rcon: secret
     ftp:
-      ip: 205.234.152.155
+      ip: chicago1.tf2pug.eoreality.net
       user: pugna
       password: secret
       dir: orangebox/tf
@@ -63,72 +63,94 @@ servers:
     password: tf2pug
     rcon: secret
     ftp:
-      ip: 96.8.114.74
+      ip: dallas1.tf2pug.eoreality.net
       user: pugna
+      password: secret
+      dir: orangebox/tf
+     
+  - name: chicago2
+    ip: chicago2.tf2pug.eoreality.net
+    port: 27015
+    password: tf2pug
+    rcon: secret
+    ftp:
+      ip: chicago2.tf2pug.eoreality.net
+      user: pugna2
       password: secret
       dir: orangebox/tf
       
 stv:
   url: http://tf2pug.us/demos
-  path: ../stv/
+  storage: ../stv/
   ftp:
     ip: tf2pug.us
     user: demos@tf2pug.us
     password: secret
-    dir:
   delete:
     remote: true
-    local: false
+    local: true
 
 rotation:
-  exclude: 2
+  exclude: 3
   maps:
     - name: badlands
       file: cp_badlands
-      weight: 16
+      weight: 10
       
     - name: granary
-      file: cp_granary
-      weight: 12
-      
-    - name: gullywash
-      file: cp_gullywash_imp3
+      file: cp_granary_beta2
       weight: 8
+      
+    - name: snakewater
+      file: cp_snakewater_b9
+      weight: 6
       
     - name: viaduct
       file: koth_viaduct
-      weight: 6
+      weight: 5
       
-    - name: snakewater
-      file: cp_snakewater_b7
-      weight: 4
-      
-    - name: yukon
-      file: cp_yukon
-      weight: 4
+    - name: gullywash
+      file: cp_gullywash_imp3
+      weight: 5
       
     - name: coldfront
       file: cp_coldfront
       weight: 4
       
+    - name: yukon
+      file: cp_yukon_final
+      weight: 3
+
     - name: ashville
       file: koth_ashville_rc1
-      weight: 2
+      weight: 3
       
     - name: freight
-      file: cp_freight_final2
+      file: cp_freight_final1
+      weight: 2
+      
+    - name: mainline
+      file: cp_mainline_rc6
       weight: 2
       
     - name: obscure
       file: cp_obscure_final
+      weight: 2
+      
+    - name: bazillion
+      file: cp_bazillion_b11
       weight: 1
       
     - name: follower
       file: cp_follower
       weight: 1
+
+    - name: wildfire
+      file: ctf_wildfire_rc
+      weight: 1
       
-    - name: well
-      file: cp_well
+    - name: turbine
+      file: ctf_turbine_pro_b1
       weight: 1
     
 mumble:
